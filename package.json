@@ -1,0 +1,14 @@
+{
+  "name": "contextual-smart-notes",
+  "version": "1.0.0",
+  "description": "Browser extension for capturing context, summarizing, translating, and saving notes.",
+  "main": "popup/popup.js",
+  "scripts": {
+    "test:translator-mock": "node popup/tests/translator_mock_test.js",
+    "test:detector-mock": "node popup/tests/language_detector_mock_test.js",
+    "test:summarizer-mock": "node popup/tests/summarizer_mock_test.js",
+    "test": "npm run test:translator-mock && npm run test:detector-mock && npm run test:summarizer-mock"
+  },
+  "author": "",
+  "license": "MIT"
+}

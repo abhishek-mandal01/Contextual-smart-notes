@@ -1,0 +1,208 @@
+<!-- popup/popup.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Notes</title>
+    <link rel="stylesheet" href="popup.css">
+    <!-- Link FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <i class="fas fa-brain"></i>
+            <h1>Smart Notes</h1>
+        </header>
+
+        <!-- Input Area: Shows the highlighted text -->
+        <section id="input-section">
+            <h2>Source Text</h2>
+            <textarea id="source-text" rows="4" placeholder="Highlight text on the webpage to begin..." readonly></textarea>
+            <div id="loading-indicator" class="loading-indicator hidden">
+                <i class="fas fa-circle-notch fa-spin"></i>
+                <span id="loading-text">Processing...</span>
+            </div>
+        </section>
+
+        <!-- Action Buttons -->
+        <section id="actions">
+            <button id="summarize-btn" class="action-btn primary" disabled>
+                <i class="fas fa-compress-alt"></i> Summarize (MVP)
+            </button>
+            <button id="rewrite-btn" class="action-btn" disabled>
+                <i class="fas fa-edit"></i> Rewrite
+            </button>
+            <button id="rewrite-stream-btn" class="action-btn" disabled>
+                <i class="fas fa-stream"></i> Rewrite (Stream)
+            </button>
+            <!-- Translator Controls -->
+            <div id="translator-controls" class="translator-controls">
+                <select id="source-lang" aria-label="Source language">
+                    <option value="auto">Auto</option>
+                    <option value="en" selected>English</option>
+                    <option value="fr">French</option>
+                    <option value="es">Spanish</option>
+                    <option value="de">German</option>
+                </select>
+                <select id="target-lang" aria-label="Target language">
+                    <option value="fr" selected>French</option>
+                    <option value="en">English</option>
+                    <option value="es">Spanish</option>
+                    <option value="de">German</option>
+                </select>
+                <button id="translate-btn" class="action-btn" disabled>
+                    <i class="fas fa-language"></i> Translate
+                </button>
+            </div>
+        </section>
+
+        <!-- Summarizer Options -->
+        <section id="summarizer-options">
+            <h3>Summarizer Options</h3>
+            <div class="summarizer-row">
+                <label for="summ-type">Type</label>
+                <select id="summ-type">
+                    <option value="key-points">Key Points</option>
+                    <option value="tldr">TL;DR</option>
+                    <option value="teaser">Teaser</option>
+                    <option value="headline">Headline</option>
+                </select>
+
+                <label for="summ-format">Format</label>
+                <select id="summ-format">
+                    <option value="plain-text" selected>Plain Text</option>
+                    <option value="markdown">Markdown</option>
+                </select>
+
+                <label for="summ-length">Length</label>
+                <select id="summ-length">
+                    <option value="short">Short</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="long">Long</option>
+                </select>
+            </div>
+
+            <div class="summarizer-row">
+                <label><input type="checkbox" id="show-rendered" /> Show rendered markdown</label>
+                <label style="margin-left:16px;"><input type="checkbox" id="mock-mode" /> Enable mock mode</label>
+                <a href="options.html" class="small-link">Options</a>
+            </div>
+        </section>
+
+        <!-- Writer (Batch + Streaming) -->
+        <section id="writer-section">
+            <h3>Writer (Draft / Rewrite)</h3>
+            <div class="writer-row">
+                <label for="writer-tone">Tone</label>
+                <select id="writer-tone">
+                    <option value="formal">Formal</option>
+                    <option value="informal">Informal</option>
+                    <option value="friendly">Friendly</option>
+                    <option value="professional" selected>Professional</option>
+                </select>
+
+                <label for="writer-format">Format</label>
+                <select id="writer-format">
+                    <option value="plain-text" selected>Plain Text</option>
+                    <option value="html">HTML</option>
+                    <option value="markdown">Markdown</option>
+                </select>
+
+                <label for="writer-length">Length</label>
+                <select id="writer-length">
+                    <option value="short">Short</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="long">Long</option>
+                </select>
+            </div>
+
+            <div class="writer-row">
+                <button id="writer-run-btn" class="action-btn" disabled>
+                    <i class="fas fa-play"></i> Run Writer
+                </button>
+                <button id="writer-stream-btn" class="action-btn" disabled>
+                    <i class="fas fa-stream"></i> Stream Write
+                </button>
+            </div>
+        </section>
+
+        <!-- Prompt / LanguageModel (batch + streaming) -->
+        <section id="prompt-section">
+            <h3>Prompt (LanguageModel)</h3>
+            <div class="prompt-row">
+                <label for="prompt-text">Prompt</label>
+                <textarea id="prompt-text" rows="3" placeholder="Enter a prompt or use highlighted text..."></textarea>
+            </div>
+            <div class="prompt-row session-controls">
+                <button id="session-create-btn" class="action-btn">Create Session</button>
+                <button id="session-clone-btn" class="action-btn" disabled>Clone Session</button>
+                <button id="session-abort-btn" class="action-btn" disabled>Abort</button>
+                <button id="session-destroy-btn" class="action-btn" disabled>Destroy</button>
+                <span id="session-status" class="small-link" style="margin-left:8px; font-weight:600;">No session</span>
+            </div>
+            <div class="prompt-row">
+                <label for="prompt-temp">Temperature</label>
+                <input id="prompt-temp" type="number" min="0" max="2" step="0.1" value="1" />
+                <label for="prompt-topk" style="margin-left:12px;">Top K</label>
+                <input id="prompt-topk" type="number" min="1" max="128" step="1" value="3" />
+            </div>
+            <div class="prompt-row">
+                <button id="prompt-run-btn" class="action-btn" disabled>
+                    <i class="fas fa-bolt"></i> Run Prompt
+                </button>
+                <button id="prompt-stream-btn" class="action-btn" disabled>
+                    <i class="fas fa-wifi"></i> Stream Prompt
+                </button>
+            </div>
+        </section>
+
+        <!-- Proofreader -->
+        <section id="proofreader-section">
+            <h3>Proofreader</h3>
+            <div class="proof-row">
+                <label for="proof-lang">Language</label>
+                <select id="proof-lang">
+                    <option value="en" selected>English</option>
+                    <option value="fr">French</option>
+                    <option value="es">Spanish</option>
+                    <option value="de">German</option>
+                </select>
+                <button id="proofread-btn" class="action-btn" disabled>
+                    <i class="fas fa-check-circle"></i> Proofread
+                </button>
+            </div>
+            <div id="proof-results" class="hidden">
+                <h4>Corrections</h4>
+                <div id="corrections-list"></div>
+                <h4>Corrected Text</h4>
+                <div id="corrected-text" class="note-content"></div>
+            </div>
+        </section>
+
+        <!-- Output Area: Shows the AI-processed text -->
+        <section id="output-section">
+            <h2>Generated Note</h2>
+            <textarea id="output-area" rows="6" placeholder="AI generated content will appear here..." readonly></textarea>
+            <div id="rendered-output" class="hidden" aria-hidden="true"></div>
+            <button id="save-note-btn" class="action-btn success" disabled>
+                <i class="fas fa-save"></i> Save Note
+            </button>
+        </section>
+
+        <!-- Saved Notes Panel -->
+        <section id="saved-notes">
+            <h2>Saved Notes History</h2>
+            <div id="saved-notes-list">
+                <!-- Notes loaded by storage.js will appear here -->
+                <p class="placeholder-text">No notes saved yet.</p>
+            </div>
+        </section>
+    </div>
+
+    <!-- Script Links (storage.js must load before popup.js) -->
+    <script src="storage.js"></script>
+    <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+body { font-family: 'Noto Sans', sans-serif; padding: 12px; background:#f7f9fc; }
+.container { max-width: 480px; margin: 0 auto; }
+h1 { color:#007bff; font-size:1.1em }
+section { margin-top:10px; }
+button { padding:8px 10px; border-radius:6px; border:none; background:#007bff; color:white; cursor:pointer }
+.note { color:#666; font-size:0.9em }
