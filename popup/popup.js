@@ -155,10 +155,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const summarizer = await summarizerAPI.create(options);
 
+            // Determine output language (use UI selection if present) to ensure API quality/safety
+            const outLang = (typeof targetLangSelect !== 'undefined' && targetLangSelect && targetLangSelect.value) ? targetLangSelect.value : 'en';
+
             // Run batch summarize first
             if (typeof summarizer.summarize === 'function') {
-                try { console.log('popup: calling summarizer.summarize'); } catch (e) {}
-                const result = await summarizer.summarize(sourceText, { context: '' });
+                try { console.log('popup: calling summarizer.summarize (outputLanguage=' + outLang + ')'); } catch (e) {}
+                const result = await summarizer.summarize(sourceText, { context: '', outputLanguage: outLang });
                 const textResult = String(result || '');
                 // If format is markdown and showRendered, render markdown
                 const fmt = summFormat ? summFormat.value : 'plain-text';
@@ -173,8 +176,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 showToast('Summarization complete', 'success');
             } else if (typeof summarizer.summarizeStreaming === 'function') {
-                try { console.log('popup: calling summarizer.summarizeStreaming'); } catch (e) {}
-                const stream = summarizer.summarizeStreaming(sourceText, { context: '' });
+                try { console.log('popup: calling summarizer.summarizeStreaming (outputLanguage=' + outLang + ')'); } catch (e) {}
+                const stream = summarizer.summarizeStreaming(sourceText, { context: '', outputLanguage: outLang });
                 let streamed = '';
                 for await (const chunk of stream) {
                     streamed += chunk;
